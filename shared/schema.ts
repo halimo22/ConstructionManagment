@@ -10,8 +10,11 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  role: text("role").notNull(), // admin, manager, worker, client
+  role: text("role").notNull(), // manager, employee, client, supplier
   avatar: text("avatar"),
+  emailVerified: boolean("email_verified").default(false),
+  verificationToken: text("verification_token"),
+  resetPasswordToken: text("reset_password_token"),
   createdAt: timestamp("created_at").defaultNow()
 });
 
@@ -22,7 +25,9 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   role: true,
-  avatar: true
+  avatar: true,
+  emailVerified: true,
+  verificationToken: true
 });
 
 // Project model
@@ -167,6 +172,49 @@ export const insertEquipmentSchema = createInsertSchema(equipment).pick({
   assignedProjectId: true
 });
 
+// Supply Order model
+export const supplyOrders = pgTable("supply_orders", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull(),
+  supplierId: integer("supplier_id").notNull(),
+  managerId: integer("manager_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  quantity: integer("quantity").notNull(),
+  status: text("status").notNull(), // pending, approved, delivered, rejected
+  requestedDate: timestamp("requested_date").defaultNow(),
+  requiredByDate: timestamp("required_by_date").notNull(),
+  deliveryDate: timestamp("delivery_date"),
+  notes: text("notes")
+});
+
+export const insertSupplyOrderSchema = createInsertSchema(supplyOrders).pick({
+  projectId: true,
+  supplierId: true,
+  managerId: true,
+  name: true,
+  description: true,
+  quantity: true,
+  status: true,
+  requiredByDate: true,
+  notes: true
+});
+
+// Email Verification model
+export const emailVerifications = pgTable("email_verifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  token: text("token").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const insertEmailVerificationSchema = createInsertSchema(emailVerifications).pick({
+  userId: true,
+  token: true,
+  expiresAt: true
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -191,3 +239,9 @@ export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 
 export type Equipment = typeof equipment.$inferSelect;
 export type InsertEquipment = z.infer<typeof insertEquipmentSchema>;
+
+export type SupplyOrder = typeof supplyOrders.$inferSelect;
+export type InsertSupplyOrder = z.infer<typeof insertSupplyOrderSchema>;
+
+export type EmailVerification = typeof emailVerifications.$inferSelect;
+export type InsertEmailVerification = z.infer<typeof insertEmailVerificationSchema>;

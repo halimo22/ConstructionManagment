@@ -6,15 +6,32 @@ import {
   clients, Client, InsertClient,
   activities, Activity, InsertActivity,
   documents, Document, InsertDocument,
-  equipment, Equipment, InsertEquipment
+  equipment, Equipment, InsertEquipment,
+  emailVerifications, EmailVerification, InsertEmailVerification,
+  supplyOrders, SupplyOrder, InsertSupplyOrder
 } from "@shared/schema";
 
 export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  getUsersByRole(role: string): Promise<User[]>;
   getUsers(): Promise<User[]>;
+  
+  // Email verification operations
+  createEmailVerification(verification: InsertEmailVerification): Promise<EmailVerification>;
+  getEmailVerificationByToken(token: string): Promise<EmailVerification | undefined>;
+  deleteEmailVerification(id: number): Promise<void>;
+  
+  // Supply order operations
+  getSupplyOrder(id: number): Promise<SupplyOrder | undefined>;
+  getSupplyOrdersByProject(projectId: number): Promise<SupplyOrder[]>;
+  getSupplyOrdersBySupplier(supplierId: number): Promise<SupplyOrder[]>;
+  createSupplyOrder(order: InsertSupplyOrder): Promise<SupplyOrder>;
+  updateSupplyOrder(id: number, order: Partial<InsertSupplyOrder>): Promise<SupplyOrder | undefined>;
 
   // Project operations
   getProject(id: number): Promise<Project | undefined>;

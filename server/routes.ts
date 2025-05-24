@@ -1,13 +1,132 @@
-import express, { type Express, Request, Response } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertProjectSchema, insertTaskSchema, insertResourceSchema, insertClientSchema, insertActivitySchema, insertDocumentSchema, insertEquipmentSchema } from "@shared/schema";
+import { insertUserSchema, insertProjectSchema, insertTaskSchema, insertResourceSchema, insertClientSchema, insertActivitySchema, insertDocumentSchema, insertEquipmentSchema, insertEmailVerificationSchema, insertSupplyOrderSchema } from "@shared/schema";
 import { z } from "zod";
+import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   
+  // Middleware for role-based access control
+  const checkRole = (roles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      const user = req.body.user || (req as any).user;
+      
+      if (!user) {
+        return res.status(401).json({ message: "Unauthorized - please login" });
+      }
+      
+      if (!roles.includes(user.role)) {
+        return res.status(403).json({ message: "Forbidden - insufficient permissions" });
+      }
+      
+      next();
+    };
+  };
+
+  // Generate verification token
+  const generateToken = (): string => {
+    return crypto.randomBytes(32).toString('hex');
+  };
+
   // AUTH ROUTES
+  apiRouter.post("/auth/register", async (req: Request, res: Response) => {
+    try {
+      const result = insertUserSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        return res.status(400).json({ message: "Invalid user data", errors: result.error.errors });
+      }
+      
+      const { username, email, role } = result.data;
+      
+      // Validate role is one of the allowed roles
+      const allowedRoles = ["manager", "employee", "client", "supplier"];
+      if (!allowedRoles.includes(role.toLowerCase())) {
+        return res.status(400).json({ message: "Invalid role. Role must be one of: manager, employee, client, supplier" });
+      }
+      
+      // Check if username or email already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(409).json({ message: "Username already exists" });
+      }
+      
+      // Create verification token
+      const verificationToken = generateToken();
+      
+      // Create user with verification token and emailVerified=false
+      const user = await storage.createUser({
+        ...result.data,
+        role: role.toLowerCase(),
+        emailVerified: false,
+        verificationToken
+      });
+      
+      // Create email verification record
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // Token valid for 24 hours
+      
+      await storage.createEmailVerification({
+        userId: user.id,
+        token: verificationToken,
+        expiresAt
+      });
+      
+      // In a real app, you would send an email with the verification link
+      // For development purposes, we'll return the token in the response
+      
+      // Don't send password in response
+      const { password, ...userWithoutPassword } = user;
+      
+      return res.status(201).json({
+        message: "User registered successfully. Please verify your email.",
+        user: userWithoutPassword,
+        verificationToken // In production, remove this and send email instead
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  apiRouter.post("/auth/verify-email", async (req: Request, res: Response) => {
+    try {
+      const { token } = req.body;
+      
+      if (!token) {
+        return res.status(400).json({ message: "Verification token is required" });
+      }
+      
+      // Find verification record
+      const verification = await storage.getEmailVerificationByToken(token);
+      
+      if (!verification) {
+        return res.status(404).json({ message: "Invalid verification token" });
+      }
+      
+      // Check if token is expired
+      if (new Date() > verification.expiresAt) {
+        return res.status(400).json({ message: "Verification token has expired" });
+      }
+      
+      // Get user and update emailVerified status
+      const user = await storage.getUser(verification.userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      await storage.updateUser(user.id, { emailVerified: true, verificationToken: null });
+      
+      return res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
   apiRouter.post("/auth/login", async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
@@ -22,6 +141,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
+      // Check if email is verified
+      if (!user.emailVerified) {
+        return res.status(403).json({ message: "Please verify your email before logging in" });
+      }
+      
       // Set user in session without the password
       const { password: _, ...userWithoutPassword } = user;
       
@@ -31,6 +155,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Login error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
+  apiRouter.post("/auth/resend-verification", async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      const user = await storage.getUserByEmail(email);
+      
+      if (!user) {
+        // For security reasons, don't reveal that the email doesn't exist
+        return res.status(200).json({ message: "If your email exists in our system, a verification link has been sent" });
+      }
+      
+      if (user.emailVerified) {
+        return res.status(400).json({ message: "Email is already verified" });
+      }
+      
+      // Generate new token
+      const verificationToken = generateToken();
+      
+      // Update user with new token
+      await storage.updateUser(user.id, { verificationToken });
+      
+      // Create or update email verification record
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24); // Token valid for 24 hours
+      
+      await storage.createEmailVerification({
+        userId: user.id,
+        token: verificationToken,
+        expiresAt
+      });
+      
+      // In a real app, you would send an email with the verification link
+      // For development purposes, we'll return the token in the response
+      
+      return res.status(200).json({
+        message: "Verification email has been sent",
+        verificationToken // In production, remove this and send email instead
+      });
+    } catch (error) {
+      console.error("Resend verification error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   });
