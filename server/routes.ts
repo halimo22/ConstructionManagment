@@ -8,14 +8,22 @@ import crypto from "crypto";
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
   
+  // Authentication middleware
+  const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session && req.session.user) {
+      return next();
+    }
+    return res.status(401).json({ message: "Unauthorized - please login" });
+  };
+  
   // Middleware for role-based access control
   const checkRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-      const user = req.body.user || (req as any).user;
-      
-      if (!user) {
+      if (!req.session || !req.session.user) {
         return res.status(401).json({ message: "Unauthorized - please login" });
       }
+      
+      const user = req.session.user;
       
       if (!roles.includes(user.role)) {
         return res.status(403).json({ message: "Forbidden - insufficient permissions" });
@@ -148,6 +156,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set user in session without the password
       const { password: _, ...userWithoutPassword } = user;
+      
+      // Store user in session
+      req.session.user = userWithoutPassword;
       
       return res.status(200).json({ 
         message: "Login successful",
