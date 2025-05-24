@@ -704,4 +704,817 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import {
+  User as UserModel,
+  Project as ProjectModel,
+  Task as TaskModel,
+  Resource as ResourceModel,
+  Client as ClientModel,
+  Activity as ActivityModel,
+  Document as DocumentModel,
+  Equipment as EquipmentModel,
+  SupplyOrder as SupplyOrderModel,
+  EmailVerification as EmailVerificationModel
+} from './models';
+
+export class MongoDBStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    try {
+      const user = await UserModel.findById(id);
+      return user ? this.mapUserToSchema(user) : undefined;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    try {
+      const user = await UserModel.findOne({ username });
+      return user ? this.mapUserToSchema(user) : undefined;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      return undefined;
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const user = await UserModel.findOne({ email });
+      return user ? this.mapUserToSchema(user) : undefined;
+    } catch (error) {
+      console.error('Error getting user by email:', error);
+      return undefined;
+    }
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    try {
+      const newUser = new UserModel(insertUser);
+      const savedUser = await newUser.save();
+      return this.mapUserToSchema(savedUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new Error('Failed to create user');
+    }
+  }
+
+  async updateUser(id: number, userUpdate: Partial<InsertUser>): Promise<User | undefined> {
+    try {
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        id, 
+        userUpdate, 
+        { new: true }
+      );
+      return updatedUser ? this.mapUserToSchema(updatedUser) : undefined;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return undefined;
+    }
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    try {
+      const users = await UserModel.find({ role });
+      return users.map(user => this.mapUserToSchema(user));
+    } catch (error) {
+      console.error('Error getting users by role:', error);
+      return [];
+    }
+  }
+
+  async getUsers(): Promise<User[]> {
+    try {
+      const users = await UserModel.find();
+      return users.map(user => this.mapUserToSchema(user));
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      return [];
+    }
+  }
+
+  // Project operations
+  async getProject(id: number): Promise<Project | undefined> {
+    try {
+      const project = await ProjectModel.findById(id);
+      return project ? this.mapProjectToSchema(project) : undefined;
+    } catch (error) {
+      console.error('Error getting project:', error);
+      return undefined;
+    }
+  }
+
+  async getProjects(): Promise<Project[]> {
+    try {
+      const projects = await ProjectModel.find();
+      return projects.map(project => this.mapProjectToSchema(project));
+    } catch (error) {
+      console.error('Error getting all projects:', error);
+      return [];
+    }
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    try {
+      const newProject = new ProjectModel(insertProject);
+      const savedProject = await newProject.save();
+      return this.mapProjectToSchema(savedProject);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      throw new Error('Failed to create project');
+    }
+  }
+
+  async updateProject(id: number, projectUpdate: Partial<InsertProject>): Promise<Project | undefined> {
+    try {
+      const updatedProject = await ProjectModel.findByIdAndUpdate(
+        id, 
+        projectUpdate, 
+        { new: true }
+      );
+      return updatedProject ? this.mapProjectToSchema(updatedProject) : undefined;
+    } catch (error) {
+      console.error('Error updating project:', error);
+      return undefined;
+    }
+  }
+
+  // Task operations
+  async getTask(id: number): Promise<Task | undefined> {
+    try {
+      const task = await TaskModel.findById(id);
+      return task ? this.mapTaskToSchema(task) : undefined;
+    } catch (error) {
+      console.error('Error getting task:', error);
+      return undefined;
+    }
+  }
+
+  async getTasks(): Promise<Task[]> {
+    try {
+      const tasks = await TaskModel.find();
+      return tasks.map(task => this.mapTaskToSchema(task));
+    } catch (error) {
+      console.error('Error getting all tasks:', error);
+      return [];
+    }
+  }
+
+  async getTasksByProject(projectId: number): Promise<Task[]> {
+    try {
+      const tasks = await TaskModel.find({ projectId });
+      return tasks.map(task => this.mapTaskToSchema(task));
+    } catch (error) {
+      console.error('Error getting tasks by project:', error);
+      return [];
+    }
+  }
+
+  async createTask(insertTask: InsertTask): Promise<Task> {
+    try {
+      const newTask = new TaskModel(insertTask);
+      const savedTask = await newTask.save();
+      return this.mapTaskToSchema(savedTask);
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw new Error('Failed to create task');
+    }
+  }
+
+  async updateTask(id: number, taskUpdate: Partial<InsertTask>): Promise<Task | undefined> {
+    try {
+      const updatedTask = await TaskModel.findByIdAndUpdate(
+        id, 
+        taskUpdate, 
+        { new: true }
+      );
+      return updatedTask ? this.mapTaskToSchema(updatedTask) : undefined;
+    } catch (error) {
+      console.error('Error updating task:', error);
+      return undefined;
+    }
+  }
+
+  // Resource operations
+  async getResource(id: number): Promise<Resource | undefined> {
+    try {
+      const resource = await ResourceModel.findById(id);
+      return resource ? this.mapResourceToSchema(resource) : undefined;
+    } catch (error) {
+      console.error('Error getting resource:', error);
+      return undefined;
+    }
+  }
+
+  async getResourceByProject(projectId: number): Promise<Resource | undefined> {
+    try {
+      const resource = await ResourceModel.findOne({ projectId });
+      return resource ? this.mapResourceToSchema(resource) : undefined;
+    } catch (error) {
+      console.error('Error getting resource by project:', error);
+      return undefined;
+    }
+  }
+
+  async getResources(): Promise<Resource[]> {
+    try {
+      const resources = await ResourceModel.find();
+      return resources.map(resource => this.mapResourceToSchema(resource));
+    } catch (error) {
+      console.error('Error getting all resources:', error);
+      return [];
+    }
+  }
+
+  async createResource(insertResource: InsertResource): Promise<Resource> {
+    try {
+      const newResource = new ResourceModel(insertResource);
+      const savedResource = await newResource.save();
+      return this.mapResourceToSchema(savedResource);
+    } catch (error) {
+      console.error('Error creating resource:', error);
+      throw new Error('Failed to create resource');
+    }
+  }
+
+  async updateResource(id: number, resourceUpdate: Partial<InsertResource>): Promise<Resource | undefined> {
+    try {
+      const updatedResource = await ResourceModel.findByIdAndUpdate(
+        id, 
+        resourceUpdate, 
+        { new: true }
+      );
+      return updatedResource ? this.mapResourceToSchema(updatedResource) : undefined;
+    } catch (error) {
+      console.error('Error updating resource:', error);
+      return undefined;
+    }
+  }
+
+  // Client operations
+  async getClient(id: number): Promise<Client | undefined> {
+    try {
+      const client = await ClientModel.findById(id);
+      return client ? this.mapClientToSchema(client) : undefined;
+    } catch (error) {
+      console.error('Error getting client:', error);
+      return undefined;
+    }
+  }
+
+  async getClients(): Promise<Client[]> {
+    try {
+      const clients = await ClientModel.find();
+      return clients.map(client => this.mapClientToSchema(client));
+    } catch (error) {
+      console.error('Error getting all clients:', error);
+      return [];
+    }
+  }
+
+  async createClient(insertClient: InsertClient): Promise<Client> {
+    try {
+      const newClient = new ClientModel(insertClient);
+      const savedClient = await newClient.save();
+      return this.mapClientToSchema(savedClient);
+    } catch (error) {
+      console.error('Error creating client:', error);
+      throw new Error('Failed to create client');
+    }
+  }
+
+  // Activity operations
+  async getActivity(id: number): Promise<Activity | undefined> {
+    try {
+      const activity = await ActivityModel.findById(id);
+      return activity ? this.mapActivityToSchema(activity) : undefined;
+    } catch (error) {
+      console.error('Error getting activity:', error);
+      return undefined;
+    }
+  }
+
+  async getActivities(): Promise<Activity[]> {
+    try {
+      const activities = await ActivityModel.find();
+      return activities.map(activity => this.mapActivityToSchema(activity));
+    } catch (error) {
+      console.error('Error getting all activities:', error);
+      return [];
+    }
+  }
+
+  async getRecentActivities(limit: number): Promise<Activity[]> {
+    try {
+      const activities = await ActivityModel.find()
+        .sort({ timestamp: -1 })
+        .limit(limit);
+      return activities.map(activity => this.mapActivityToSchema(activity));
+    } catch (error) {
+      console.error('Error getting recent activities:', error);
+      return [];
+    }
+  }
+
+  async createActivity(insertActivity: InsertActivity): Promise<Activity> {
+    try {
+      const newActivity = new ActivityModel(insertActivity);
+      const savedActivity = await newActivity.save();
+      return this.mapActivityToSchema(savedActivity);
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      throw new Error('Failed to create activity');
+    }
+  }
+
+  // Document operations
+  async getDocument(id: number): Promise<Document | undefined> {
+    try {
+      const document = await DocumentModel.findById(id);
+      return document ? this.mapDocumentToSchema(document) : undefined;
+    } catch (error) {
+      console.error('Error getting document:', error);
+      return undefined;
+    }
+  }
+
+  async getDocumentsByProject(projectId: number): Promise<Document[]> {
+    try {
+      const documents = await DocumentModel.find({ projectId });
+      return documents.map(document => this.mapDocumentToSchema(document));
+    } catch (error) {
+      console.error('Error getting documents by project:', error);
+      return [];
+    }
+  }
+
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    try {
+      const newDocument = new DocumentModel(insertDocument);
+      const savedDocument = await newDocument.save();
+      return this.mapDocumentToSchema(savedDocument);
+    } catch (error) {
+      console.error('Error creating document:', error);
+      throw new Error('Failed to create document');
+    }
+  }
+
+  // Equipment operations
+  async getEquipment(id: number): Promise<Equipment | undefined> {
+    try {
+      const equipment = await EquipmentModel.findById(id);
+      return equipment ? this.mapEquipmentToSchema(equipment) : undefined;
+    } catch (error) {
+      console.error('Error getting equipment:', error);
+      return undefined;
+    }
+  }
+
+  async getAllEquipment(): Promise<Equipment[]> {
+    try {
+      const equipmentItems = await EquipmentModel.find();
+      return equipmentItems.map(equipment => this.mapEquipmentToSchema(equipment));
+    } catch (error) {
+      console.error('Error getting all equipment:', error);
+      return [];
+    }
+  }
+
+  async createEquipment(insertEquipment: InsertEquipment): Promise<Equipment> {
+    try {
+      const newEquipment = new EquipmentModel(insertEquipment);
+      const savedEquipment = await newEquipment.save();
+      return this.mapEquipmentToSchema(savedEquipment);
+    } catch (error) {
+      console.error('Error creating equipment:', error);
+      throw new Error('Failed to create equipment');
+    }
+  }
+
+  async updateEquipment(id: number, equipmentUpdate: Partial<InsertEquipment>): Promise<Equipment | undefined> {
+    try {
+      const updatedEquipment = await EquipmentModel.findByIdAndUpdate(
+        id, 
+        equipmentUpdate, 
+        { new: true }
+      );
+      return updatedEquipment ? this.mapEquipmentToSchema(updatedEquipment) : undefined;
+    } catch (error) {
+      console.error('Error updating equipment:', error);
+      return undefined;
+    }
+  }
+
+  // Email verification operations
+  async createEmailVerification(verification: InsertEmailVerification): Promise<EmailVerification> {
+    try {
+      const newVerification = new EmailVerificationModel(verification);
+      const savedVerification = await newVerification.save();
+      return this.mapEmailVerificationToSchema(savedVerification);
+    } catch (error) {
+      console.error('Error creating email verification:', error);
+      throw new Error('Failed to create email verification');
+    }
+  }
+
+  async getEmailVerificationByToken(token: string): Promise<EmailVerification | undefined> {
+    try {
+      const verification = await EmailVerificationModel.findOne({ token });
+      return verification ? this.mapEmailVerificationToSchema(verification) : undefined;
+    } catch (error) {
+      console.error('Error getting email verification by token:', error);
+      return undefined;
+    }
+  }
+
+  async deleteEmailVerification(id: number): Promise<void> {
+    try {
+      await EmailVerificationModel.findByIdAndDelete(id);
+    } catch (error) {
+      console.error('Error deleting email verification:', error);
+    }
+  }
+
+  // Supply order operations
+  async getSupplyOrder(id: number): Promise<SupplyOrder | undefined> {
+    try {
+      const order = await SupplyOrderModel.findById(id);
+      return order ? this.mapSupplyOrderToSchema(order) : undefined;
+    } catch (error) {
+      console.error('Error getting supply order:', error);
+      return undefined;
+    }
+  }
+
+  async getSupplyOrdersByProject(projectId: number): Promise<SupplyOrder[]> {
+    try {
+      const orders = await SupplyOrderModel.find({ projectId });
+      return orders.map(order => this.mapSupplyOrderToSchema(order));
+    } catch (error) {
+      console.error('Error getting supply orders by project:', error);
+      return [];
+    }
+  }
+
+  async getSupplyOrdersBySupplier(supplierId: number): Promise<SupplyOrder[]> {
+    try {
+      const orders = await SupplyOrderModel.find({ supplierId });
+      return orders.map(order => this.mapSupplyOrderToSchema(order));
+    } catch (error) {
+      console.error('Error getting supply orders by supplier:', error);
+      return [];
+    }
+  }
+
+  async createSupplyOrder(insertOrder: InsertSupplyOrder): Promise<SupplyOrder> {
+    try {
+      const newOrder = new SupplyOrderModel(insertOrder);
+      const savedOrder = await newOrder.save();
+      return this.mapSupplyOrderToSchema(savedOrder);
+    } catch (error) {
+      console.error('Error creating supply order:', error);
+      throw new Error('Failed to create supply order');
+    }
+  }
+
+  async updateSupplyOrder(id: number, orderUpdate: Partial<InsertSupplyOrder>): Promise<SupplyOrder | undefined> {
+    try {
+      const updatedOrder = await SupplyOrderModel.findByIdAndUpdate(
+        id, 
+        orderUpdate, 
+        { new: true }
+      );
+      return updatedOrder ? this.mapSupplyOrderToSchema(updatedOrder) : undefined;
+    } catch (error) {
+      console.error('Error updating supply order:', error);
+      return undefined;
+    }
+  }
+
+  // Helper methods to map MongoDB documents to our schema types
+  private mapUserToSchema(user: any): User {
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      password: user.password,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      verificationToken: user.verificationToken,
+      resetPasswordToken: user.resetPasswordToken,
+      createdAt: user.createdAt
+    };
+  }
+
+  private mapProjectToSchema(project: any): Project {
+    return {
+      id: project._id.toString(),
+      name: project.name,
+      description: project.description,
+      status: project.status,
+      progress: project.progress,
+      clientId: project.clientId.toString(),
+      startDate: project.startDate,
+      endDate: project.endDate,
+      budget: project.budget,
+      spent: project.spent,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt
+    };
+  }
+
+  private mapTaskToSchema(task: any): Task {
+    return {
+      id: task._id.toString(),
+      name: task.name,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      projectId: task.projectId.toString(),
+      assigneeId: task.assigneeId.toString(),
+      dueDate: task.dueDate,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt
+    };
+  }
+
+  private mapResourceToSchema(resource: any): Resource {
+    return {
+      id: resource._id.toString(),
+      teamMemberCount: resource.teamMemberCount,
+      equipmentUtilization: resource.equipmentUtilization,
+      teamMembers: resource.teamMembers,
+      projectId: resource.projectId.toString(),
+      createdAt: resource.createdAt,
+      updatedAt: resource.updatedAt
+    };
+  }
+
+  private mapClientToSchema(client: any): Client {
+    return {
+      id: client._id.toString(),
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      address: client.address,
+      contactPerson: client.contactPerson,
+      createdAt: client.createdAt
+    };
+  }
+
+  private mapActivityToSchema(activity: any): Activity {
+    return {
+      id: activity._id.toString(),
+      action: activity.action,
+      details: activity.details,
+      userId: activity.userId.toString(),
+      projectId: activity.projectId ? activity.projectId.toString() : null,
+      timestamp: activity.timestamp
+    };
+  }
+
+  private mapDocumentToSchema(document: any): Document {
+    return {
+      id: document._id.toString(),
+      name: document.name,
+      type: document.type,
+      url: document.url,
+      projectId: document.projectId.toString(),
+      uploadedBy: document.uploadedBy.toString(),
+      uploadedAt: document.uploadedAt
+    };
+  }
+
+  private mapEquipmentToSchema(equipment: any): Equipment {
+    return {
+      id: equipment._id.toString(),
+      type: equipment.type,
+      name: equipment.name,
+      status: equipment.status,
+      assignedProjectId: equipment.assignedProjectId ? equipment.assignedProjectId.toString() : null,
+      createdAt: equipment.createdAt
+    };
+  }
+
+  private mapEmailVerificationToSchema(verification: any): EmailVerification {
+    return {
+      id: verification._id.toString(),
+      userId: verification.userId.toString(),
+      token: verification.token,
+      expiresAt: verification.expiresAt,
+      createdAt: verification.createdAt
+    };
+  }
+
+  private mapSupplyOrderToSchema(order: any): SupplyOrder {
+    return {
+      id: order._id.toString(),
+      name: order.name,
+      description: order.description,
+      status: order.status,
+      projectId: order.projectId.toString(),
+      supplierId: order.supplierId.toString(),
+      managerId: order.managerId.toString(),
+      quantity: order.quantity,
+      requestedDate: order.requestedDate,
+      requiredByDate: order.requiredByDate,
+      deliveryDate: order.deliveryDate,
+      notes: order.notes
+    };
+  }
+
+  // Initialize demo data
+  async initializeDemoData() {
+    try {
+      const usersCount = await UserModel.countDocuments();
+      
+      if (usersCount === 0) {
+        console.log('Initializing demo data...');
+        
+        // Create demo users
+        const adminUser = await this.createUser({
+          username: "admin",
+          password: "admin123",
+          email: "admin@webuild.com",
+          firstName: "Admin",
+          lastName: "User",
+          role: "Manager",
+          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          emailVerified: true
+        });
+        
+        const sarahUser = await this.createUser({
+          username: "sarah",
+          password: "sarah123",
+          email: "sarah@webuild.com",
+          firstName: "Sarah",
+          lastName: "Johnson",
+          role: "Employee",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          emailVerified: true
+        });
+        
+        const clientUser = await this.createUser({
+          username: "client",
+          password: "client123",
+          email: "client@example.com",
+          firstName: "Client",
+          lastName: "User",
+          role: "Client",
+          avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          emailVerified: true
+        });
+        
+        const supplierUser = await this.createUser({
+          username: "supplier",
+          password: "supplier123",
+          email: "supplier@example.com",
+          firstName: "Supplier",
+          lastName: "User",
+          role: "Supplier",
+          avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+          emailVerified: true
+        });
+
+        // Create sample client
+        const client = await this.createClient({
+          name: "ABC Corporation",
+          email: "contact@abccorp.com",
+          phone: "555-1234",
+          address: "123 Business Ave, Suite 100",
+          contactPerson: "John Executive"
+        });
+
+        // Create sample projects
+        const project1 = await this.createProject({
+          name: "City Heights Tower",
+          description: "A 20-story residential tower with 100 luxury apartments and ground-floor retail space.",
+          clientId: clientUser.id,
+          status: "In Progress",
+          startDate: new Date("2023-05-15"),
+          endDate: new Date("2024-08-30"),
+          progress: 45,
+          budget: 12500000,
+          spent: 5625000
+        });
+
+        const project2 = await this.createProject({
+          name: "Green Valley Residences",
+          description: "Eco-friendly residential complex with 50 units, solar panels, and sustainable design features.",
+          clientId: clientUser.id,
+          status: "Planning",
+          startDate: new Date("2023-09-01"),
+          endDate: new Date("2025-03-15"),
+          progress: 15,
+          budget: 8750000,
+          spent: 1312500
+        });
+
+        // Create sample tasks
+        await this.createTask({
+          projectId: project1.id,
+          name: "Foundation completion inspection",
+          description: "Final inspection of foundation before proceeding to structural framing",
+          assigneeId: sarahUser.id,
+          status: "completed",
+          priority: "high",
+          dueDate: new Date("2023-08-15")
+        });
+
+        await this.createTask({
+          projectId: project1.id,
+          name: "Structural steel installation",
+          description: "Installation of main structural steel framing for floors 1-10",
+          assigneeId: sarahUser.id,
+          status: "in progress",
+          priority: "high",
+          dueDate: new Date("2023-11-30")
+        });
+
+        await this.createTask({
+          projectId: project2.id,
+          name: "Foundation inspection for Green Valley Residences",
+          description: "Inspection of foundation work for Building A",
+          assigneeId: sarahUser.id,
+          status: "pending",
+          priority: "medium",
+          dueDate: new Date("2023-10-15")
+        });
+
+        // Create sample activities
+        await this.createActivity({
+          userId: adminUser.id,
+          projectId: project1.id,
+          action: "Added new milestone",
+          details: "Added 'Facade completion' milestone for City Heights Tower"
+        });
+
+        await this.createActivity({
+          userId: sarahUser.id,
+          projectId: project1.id,
+          action: "Updated task status",
+          details: "Marked 'Foundation completion inspection' as completed"
+        });
+
+        await this.createActivity({
+          userId: adminUser.id,
+          projectId: project2.id,
+          action: "Scheduled meeting",
+          details: "Scheduled design review meeting with client for Green Valley Residences"
+        });
+
+        // Create sample equipment
+        await this.createEquipment({
+          name: "Tower Crane #1",
+          type: "Heavy Equipment",
+          status: "in use",
+          assignedProjectId: project1.id
+        });
+
+        await this.createEquipment({
+          name: "Excavator 320",
+          type: "Heavy Equipment",
+          status: "available",
+          assignedProjectId: null
+        });
+
+        // Create sample supply order
+        await this.createSupplyOrder({
+          projectId: project1.id,
+          supplierId: supplierUser.id,
+          managerId: adminUser.id,
+          name: "Concrete Mix - Grade A",
+          description: "High-strength concrete mix for foundation and structural elements",
+          quantity: 200,
+          status: "Delivered",
+          requiredByDate: new Date("2023-06-15"),
+          notes: "Delivery completed ahead of schedule"
+        });
+
+        await this.createSupplyOrder({
+          projectId: project2.id,
+          supplierId: supplierUser.id,
+          managerId: adminUser.id,
+          name: "Eco-friendly Insulation",
+          description: "Sustainable insulation materials for Green Valley Residences",
+          quantity: 100,
+          status: "Pending",
+          requiredByDate: new Date("2023-12-01"),
+          notes: "Need to confirm exact specifications with architect"
+        });
+        
+        console.log('Demo data initialization complete!');
+      } else {
+        console.log('Demo data already exists, skipping initialization');
+      }
+    } catch (error) {
+      console.error('Error initializing demo data:', error);
+    }
+  }
+}
+
+export const storage = new MongoDBStorage();
