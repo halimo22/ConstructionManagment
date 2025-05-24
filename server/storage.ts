@@ -1,79 +1,79 @@
 import {
-  users, User, InsertUser,
-  projects, Project, InsertProject,
-  tasks, Task, InsertTask,
-  resources, Resource, InsertResource,
-  clients, Client, InsertClient,
-  activities, Activity, InsertActivity,
-  documents, Document, InsertDocument,
-  equipment, Equipment, InsertEquipment,
-  emailVerifications, EmailVerification, InsertEmailVerification,
-  supplyOrders, SupplyOrder, InsertSupplyOrder
-} from "@shared/schema";
+  User, InsertUser,
+  Project, InsertProject,
+  Task, InsertTask,
+  Resource, InsertResource,
+  Client, InsertClient,
+  Activity, InsertActivity,
+  Document, InsertDocument,
+  Equipment, InsertEquipment,
+  EmailVerification, InsertEmailVerification,
+  SupplyOrder, InsertSupplyOrder
+} from "../shared/schema";
 
 export interface IStorage {
   // User operations
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   getUsersByRole(role: string): Promise<User[]>;
   getUsers(): Promise<User[]>;
   
   // Email verification operations
   createEmailVerification(verification: InsertEmailVerification): Promise<EmailVerification>;
   getEmailVerificationByToken(token: string): Promise<EmailVerification | undefined>;
-  deleteEmailVerification(id: number): Promise<void>;
+  deleteEmailVerification(id: string): Promise<void>;
   
   // Supply order operations
-  getSupplyOrder(id: number): Promise<SupplyOrder | undefined>;
-  getSupplyOrdersByProject(projectId: number): Promise<SupplyOrder[]>;
-  getSupplyOrdersBySupplier(supplierId: number): Promise<SupplyOrder[]>;
+  getSupplyOrder(id: string): Promise<SupplyOrder | undefined>;
+  getSupplyOrdersByProject(projectId: string): Promise<SupplyOrder[]>;
+  getSupplyOrdersBySupplier(supplierId: string): Promise<SupplyOrder[]>;
   createSupplyOrder(order: InsertSupplyOrder): Promise<SupplyOrder>;
-  updateSupplyOrder(id: number, order: Partial<InsertSupplyOrder>): Promise<SupplyOrder | undefined>;
+  updateSupplyOrder(id: string, order: Partial<InsertSupplyOrder>): Promise<SupplyOrder | undefined>;
 
   // Project operations
-  getProject(id: number): Promise<Project | undefined>;
+  getProject(id: string): Promise<Project | undefined>;
   getProjects(): Promise<Project[]>;
   createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: number, project: Partial<InsertProject>): Promise<Project | undefined>;
+  updateProject(id: string, project: Partial<InsertProject>): Promise<Project | undefined>;
   
   // Task operations
-  getTask(id: number): Promise<Task | undefined>;
+  getTask(id: string): Promise<Task | undefined>;
   getTasks(): Promise<Task[]>;
-  getTasksByProject(projectId: number): Promise<Task[]>;
+  getTasksByProject(projectId: string): Promise<Task[]>;
   createTask(task: InsertTask): Promise<Task>;
-  updateTask(id: number, task: Partial<InsertTask>): Promise<Task | undefined>;
+  updateTask(id: string, task: Partial<InsertTask>): Promise<Task | undefined>;
   
   // Resource operations
-  getResource(id: number): Promise<Resource | undefined>;
-  getResourceByProject(projectId: number): Promise<Resource | undefined>;
+  getResource(id: string): Promise<Resource | undefined>;
+  getResourceByProject(projectId: string): Promise<Resource | undefined>;
   getResources(): Promise<Resource[]>;
   createResource(resource: InsertResource): Promise<Resource>;
-  updateResource(id: number, resource: Partial<InsertResource>): Promise<Resource | undefined>;
+  updateResource(id: string, resource: Partial<InsertResource>): Promise<Resource | undefined>;
   
   // Client operations
-  getClient(id: number): Promise<Client | undefined>;
+  getClient(id: string): Promise<Client | undefined>;
   getClients(): Promise<Client[]>;
   createClient(client: InsertClient): Promise<Client>;
   
   // Activity operations
-  getActivity(id: number): Promise<Activity | undefined>;
+  getActivity(id: string): Promise<Activity | undefined>;
   getActivities(): Promise<Activity[]>;
   getRecentActivities(limit: number): Promise<Activity[]>;
   createActivity(activity: InsertActivity): Promise<Activity>;
   
   // Document operations
-  getDocument(id: number): Promise<Document | undefined>;
-  getDocumentsByProject(projectId: number): Promise<Document[]>;
+  getDocument(id: string): Promise<Document | undefined>;
+  getDocumentsByProject(projectId: string): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   
   // Equipment operations
-  getEquipment(id: number): Promise<Equipment | undefined>;
+  getEquipment(id: string): Promise<Equipment | undefined>;
   getAllEquipment(): Promise<Equipment[]>;
   createEquipment(equipment: InsertEquipment): Promise<Equipment>;
-  updateEquipment(id: number, equipment: Partial<InsertEquipment>): Promise<Equipment | undefined>;
+  updateEquipment(id: string, equipment: Partial<InsertEquipment>): Promise<Equipment | undefined>;
 }
 
 export class MemStorage implements IStorage {

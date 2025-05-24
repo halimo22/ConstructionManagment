@@ -45,7 +45,7 @@ export class MongoStorage implements IStorage {
     return this.transformUserToType(savedUser.toObject());
   }
 
-  async updateUser(id: number, userUpdate: Partial<InsertUser>): Promise<UserType | undefined> {
+  async updateUser(id: string, userUpdate: Partial<InsertUser>): Promise<UserType | undefined> {
     const updatedUser = await User.findByIdAndUpdate(id, userUpdate, { new: true }).lean();
     if (!updatedUser) return undefined;
     return this.transformUserToType(updatedUser);
