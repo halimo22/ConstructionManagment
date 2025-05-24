@@ -1,9 +1,11 @@
-import { Switch, Route } from "wouter";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import { AuthProvider } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 // Pages
 import Dashboard from "@/pages/dashboard";
@@ -19,38 +21,75 @@ import ClientList from "@/pages/clients/client-list";
 import Communications from "@/pages/clients/communications";
 import Settings from "@/pages/settings/settings";
 import HelpSupport from "@/pages/settings/help-support";
-import Login from "@/pages/auth/login";
+import Login from "./pages/auth/login";
+import Register from "./pages/auth/register";
+import VerifyEmail from "./pages/auth/verify-email";
+import Unauthorized from "./pages/auth/unauthorized";
 
-function Router() {
+function AppRoutes() {
   return (
-    <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/projects/active-projects" component={ActiveProjects} />
-      <Route path="/projects/project-planning" component={ProjectPlanning} />
-      <Route path="/projects/tasks" component={Tasks} />
-      <Route path="/projects/timeline" component={Timeline} />
-      <Route path="/resources/team" component={Team} />
-      <Route path="/resources/equipment" component={Equipment} />
-      <Route path="/resources/budget" component={Budget} />
-      <Route path="/resources/documents" component={Documents} />
-      <Route path="/clients/client-list" component={ClientList} />
-      <Route path="/clients/communications" component={Communications} />
-      <Route path="/settings/settings" component={Settings} />
-      <Route path="/settings/help-support" component={HelpSupport} />
-      <Route path="/auth/login" component={Login} />
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* Manager & Employee Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['Manager', 'Employee']} />}>
+          <Route path="/projects/active-projects" element={<ActiveProjects />} />
+          <Route path="/projects/tasks" element={<Tasks />} />
+          <Route path="/projects/timeline" element={<Timeline />} />
+          <Route path="/resources/team" element={<Team />} />
+          <Route path="/resources/equipment" element={<Equipment />} />
+          <Route path="/resources/documents" element={<Documents />} />
+          <Route path="/resources/budget" element={<Budget />} />
+        </Route>
+        
+        {/* Manager Only Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['Manager']} />}>
+          <Route path="/projects/project-planning" element={<ProjectPlanning />} />
+          <Route path="/clients/client-list" element={<ClientList />} />
+          <Route path="/clients/communications" element={<Communications />} />
+        </Route>
+        
+        {/* Client Routes - they have limited access */}
+        <Route element={<ProtectedRoute allowedRoles={['Client']} />}>
+          {/* Specific client views would go here */}
+        </Route>
+        
+        {/* Supplier Routes - they have limited access */}
+        <Route element={<ProtectedRoute allowedRoles={['Supplier']} />}>
+          {/* Specific supplier views would go here */}
+        </Route>
+        
+        {/* Settings accessible by all authenticated users */}
+        <Route path="/settings/settings" element={<Settings />} />
+        <Route path="/settings/help-support" element={<HelpSupport />} />
+      </Route>
+      
+      {/* Fallback route */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <AppRoutes />
+          </TooltipProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }
