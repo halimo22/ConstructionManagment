@@ -85,6 +85,8 @@ export class MemStorage implements IStorage {
   private activities: Map<number, Activity>;
   private documents: Map<number, Document>;
   private equipmentItems: Map<number, Equipment>;
+  private emailVerifications: Map<number, EmailVerification>;
+  private supplyOrders: Map<number, SupplyOrder>;
   
   private userId: number;
   private projectId: number;
@@ -94,6 +96,8 @@ export class MemStorage implements IStorage {
   private activityId: number;
   private documentId: number;
   private equipmentId: number;
+  private emailVerificationId: number;
+  private supplyOrderId: number;
 
   constructor() {
     this.users = new Map();
@@ -104,6 +108,8 @@ export class MemStorage implements IStorage {
     this.activities = new Map();
     this.documents = new Map();
     this.equipmentItems = new Map();
+    this.emailVerifications = new Map();
+    this.supplyOrders = new Map();
     
     this.userId = 1;
     this.projectId = 1;
@@ -113,6 +119,8 @@ export class MemStorage implements IStorage {
     this.activityId = 1;
     this.documentId = 1;
     this.equipmentId = 1;
+    this.emailVerificationId = 1;
+    this.supplyOrderId = 1;
     
     // Add demo data
     this.initializeDemoData();
@@ -391,13 +399,45 @@ export class MemStorage implements IStorage {
       (user) => user.username === username,
     );
   }
+  
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email,
+    );
+  }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userId++;
     const now = new Date();
-    const user: User = { ...insertUser, id, createdAt: now };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt: now,
+      emailVerified: insertUser.emailVerified !== undefined ? insertUser.emailVerified : false,
+      verificationToken: insertUser.verificationToken || null,
+      resetPasswordToken: null
+    };
     this.users.set(id, user);
     return user;
+  }
+  
+  async updateUser(id: number, userUpdate: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: User = {
+      ...user,
+      ...userUpdate
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async getUsersByRole(role: string): Promise<User[]> {
+    return Array.from(this.users.values()).filter(
+      (user) => user.role.toLowerCase() === role.toLowerCase()
+    );
   }
   
   async getUsers(): Promise<User[]> {
@@ -592,6 +632,75 @@ export class MemStorage implements IStorage {
     
     this.equipmentItems.set(id, updatedEquipment);
     return updatedEquipment;
+  }
+  
+  // Email verification operations
+  async createEmailVerification(verification: InsertEmailVerification): Promise<EmailVerification> {
+    const id = this.emailVerificationId++;
+    
+    const newVerification: EmailVerification = {
+      id,
+      ...verification,
+      createdAt: new Date()
+    };
+    
+    this.emailVerifications.set(id, newVerification);
+    return newVerification;
+  }
+  
+  async getEmailVerificationByToken(token: string): Promise<EmailVerification | undefined> {
+    return Array.from(this.emailVerifications.values()).find(
+      (verification) => verification.token === token
+    );
+  }
+  
+  async deleteEmailVerification(id: number): Promise<void> {
+    this.emailVerifications.delete(id);
+  }
+  
+  // Supply order operations
+  async getSupplyOrder(id: number): Promise<SupplyOrder | undefined> {
+    return this.supplyOrders.get(id);
+  }
+  
+  async getSupplyOrdersByProject(projectId: number): Promise<SupplyOrder[]> {
+    return Array.from(this.supplyOrders.values()).filter(
+      (order) => order.projectId === projectId
+    );
+  }
+  
+  async getSupplyOrdersBySupplier(supplierId: number): Promise<SupplyOrder[]> {
+    return Array.from(this.supplyOrders.values()).filter(
+      (order) => order.supplierId === supplierId
+    );
+  }
+  
+  async createSupplyOrder(order: InsertSupplyOrder): Promise<SupplyOrder> {
+    const id = this.supplyOrderId++;
+    const now = new Date();
+    
+    const newOrder: SupplyOrder = {
+      id,
+      ...order,
+      requestedDate: now,
+      deliveryDate: null
+    };
+    
+    this.supplyOrders.set(id, newOrder);
+    return newOrder;
+  }
+  
+  async updateSupplyOrder(id: number, orderUpdate: Partial<InsertSupplyOrder>): Promise<SupplyOrder | undefined> {
+    const order = this.supplyOrders.get(id);
+    if (!order) return undefined;
+    
+    const updatedOrder: SupplyOrder = {
+      ...order,
+      ...orderUpdate
+    };
+    
+    this.supplyOrders.set(id, updatedOrder);
+    return updatedOrder;
   }
 }
 
