@@ -1,31 +1,47 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
-interface ProtectedRouteProps {
-  allowedRoles?: string[];
-}
+type ProtectedRouteProps = {
+  children: ReactNode;
+  allowedRoles?: ('Manager' | 'Employee' | 'Client' | 'Supplier')[];
+  requireVerified?: boolean;
+};
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({
+  children,
+  allowedRoles,
+  requireVerified = true,
+}: ProtectedRouteProps) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
-  // Show loading indicator while checking authentication
+  // Show loading state
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  // If user is not authenticated, redirect to login page
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  // Not authenticated
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If roles are specified, check if user has required role
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  // Email not verified and verification required
+  if (requireVerified && !user.emailVerified) {
+    return <Navigate to="/verify-email" state={{ from: location }} replace />;
   }
 
-  // If user is authenticated and has required role, render the children routes
-  return <Outlet />;
+  // Check role-based access
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />;
+  }
+
+  // All checks passed, render the children
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

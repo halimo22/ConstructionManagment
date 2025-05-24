@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
+// Define types for our context
+type User = {
   id: string;
   username: string;
   email: string;
@@ -9,64 +9,78 @@ interface User {
   lastName: string;
   role: 'Manager' | 'Employee' | 'Client' | 'Supplier';
   emailVerified: boolean;
-}
+};
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   loading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-  register: (userData: any) => Promise<void>;
-  isAuthenticated: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  checkAuth: () => Promise<void>;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+type RegisterData = {
+  username: string;
+  password: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'Manager' | 'Employee' | 'Client' | 'Supplier';
+};
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+// Create the context with a default value
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  error: null,
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+});
+
+// Custom hook to use the auth context
+export const useAuth = () => useContext(AuthContext);
+
+// Provider component
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
-  // Check if user is already logged in
+  // Check if user is authenticated on mount
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
-        
-        if (data.authenticated) {
-          setUser(data.user);
-        }
-      } catch (err) {
-        console.error('Auth check failed:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuthStatus();
+    checkAuth();
   }, []);
 
+  // Check authentication status
+  const checkAuth = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/auth/check');
+      const data = await response.json();
+
+      if (response.ok && data.authenticated) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      console.error('Auth check failed:', err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Login function
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -76,42 +90,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      
+
       setUser(data.user);
-      navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message);
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = async () => {
-    try {
-      setLoading(true);
-      
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      
-      setUser(null);
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (userData: any) => {
+  // Register function
+  const register = async (userData: RegisterData) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -121,14 +119,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-      
-      navigate('/verify-email');
+
+      // Don't automatically log in after registration since email verification is required
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
+  const logout = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Logout failed');
+      }
+
+      setUser(null);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -141,9 +161,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading,
         error,
         login,
-        logout,
         register,
-        isAuthenticated: !!user,
+        logout,
+        checkAuth,
       }}
     >
       {children}

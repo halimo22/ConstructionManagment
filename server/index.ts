@@ -19,7 +19,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
+    mongoUrl: process.env.MONGO_URI || 'mongodb+srv://halimo:0164Seif@cluster0.mzidl.mongodb.net',
     ttl: 24 * 60 * 60 // 1 day session
   }),
   cookie: {
