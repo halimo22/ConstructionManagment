@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertUserSchema, insertProjectSchema, insertTaskSchema, insertResourceSchema, insertClientSchema, insertActivitySchema, insertDocumentSchema, insertEquipmentSchema, insertEmailVerificationSchema, insertSupplyOrderSchema } from "@shared/schema";
 import { z } from "zod";
 import crypto from "crypto";
+import { sendEmail } from "./sendEmail"; 
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const apiRouter = express.Router();
@@ -87,16 +88,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Don't send password in response
       const { password, ...userWithoutPassword } = user;
-      
+      const verificationUrl = `http://localhost:5000/verify-email?token=${verificationToken}`;
+      await sendEmail(
+        email,
+        'Verify your WE-BUILD Account',
+        `
+          <h1>Welcome to WE-BUILD</h1>
+          <p>Click below to verify your email:</p>
+          <a href="${verificationUrl}">${verificationUrl}</a>
+          <p>This link expires in 24 hours.</p>
+        `
+      );
       return res.status(201).json({
         message: "User registered successfully. Please verify your email.",
-        user: userWithoutPassword,
-        verificationToken // In production, remove this and send email instead
+        user: userWithoutPassword
       });
     } catch (error) {
       console.error("Registration error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
+    
   });
   
   apiRouter.post("/auth/verify-email", async (req: Request, res: Response) => {
@@ -798,6 +809,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+  apiRouter.get("/auth/check", (req: Request, res: Response) => {
+    try {
+      if (req.session?.user) {
+        return res.status(200).json({
+          authenticated: true,
+          user: req.session.user
+        });
+      } else {
+        return res.status(200).json({
+          authenticated: false
+        });
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+  
   
   // Register the API router
   app.use("/api", apiRouter);

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, Download } from 'lucide-react';
@@ -26,7 +25,7 @@ const Timeline: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Timeline" subtitle="Project timeline and schedule overview">
+      <>
         <div className="animate-pulse">
           <div className="mb-6 flex justify-end">
             <div className="h-10 w-40 bg-gray-200 rounded"></div>
@@ -40,12 +39,12 @@ const Timeline: React.FC = () => {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Timeline" subtitle="Project timeline and schedule overview">
+    <>
       <div className="mb-6 flex justify-end">
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
@@ -171,7 +170,7 @@ const Timeline: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppLayout>
+    </>
   );
 };
 

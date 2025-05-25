@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, Mail, Phone, MapPin, MoreVertical } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -42,7 +41,7 @@ const ClientList: React.FC = () => {
 
   if (isLoadingData) {
     return (
-      <AppLayout title="Client List" subtitle="View and manage your clients">
+      <>
         <div className="animate-pulse">
           <div className="flex justify-between items-center mb-6">
             <div className="h-10 w-32 bg-gray-200 rounded"></div>
@@ -54,12 +53,12 @@ const ClientList: React.FC = () => {
             ))}
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Client List" subtitle="View and manage your clients">
+    <>
       <div className="flex justify-between items-center mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -139,7 +138,7 @@ const ClientList: React.FC = () => {
           </Card>
         ))}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

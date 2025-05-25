@@ -8,7 +8,7 @@ declare module 'express-session' {
       email: string;
       firstName: string;
       lastName: string;
-      role: 'Manager' | 'Employee' | 'Client' | 'Supplier';
+      role: 'manager' | 'employee' | 'client' | 'supplier';
       emailVerified: boolean;
     };
   }

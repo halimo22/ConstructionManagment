@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -80,7 +79,7 @@ const Equipment: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Equipment" subtitle="Manage construction equipment and tools">
+      <>
         <div className="animate-pulse">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div className="h-10 w-32 bg-gray-200 rounded"></div>
@@ -91,12 +90,12 @@ const Equipment: React.FC = () => {
           </div>
           <div className="bg-white h-96 rounded-lg shadow"></div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Equipment" subtitle="Manage construction equipment and tools">
+    <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -181,7 +180,7 @@ const Equipment: React.FC = () => {
           </Table>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

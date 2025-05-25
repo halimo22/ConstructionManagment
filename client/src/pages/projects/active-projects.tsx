@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { formatDate, getStatusColor } from '@/lib/utils';
 import ProgressBar from '@/components/ui/progress-bar';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ const ActiveProjects: React.FC = () => {
 
   if (isLoading || clientsLoading) {
     return (
-      <AppLayout title="Active Projects" subtitle="View and manage all your ongoing projects">
+      <>
         <div className="animate-pulse">
           <div className="flex justify-between items-center mb-6">
             <div className="h-10 w-32 bg-gray-200 rounded"></div>
@@ -35,12 +34,12 @@ const ActiveProjects: React.FC = () => {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Active Projects" subtitle="View and manage all your ongoing projects">
+    <>
       <div className="flex justify-between items-center mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -120,7 +119,7 @@ const ActiveProjects: React.FC = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

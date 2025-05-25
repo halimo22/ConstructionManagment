@@ -2,21 +2,14 @@ import React from 'react';
 import { Search, Bell } from 'lucide-react';
 import CustomAvatar from '@/components/ui/custom-avatar';
 import { useSidebar } from '@/hooks/use-sidebar';
+import { useAuth } from '@/context/AuthContext';
 
-interface HeaderProps {
-  user?: {
-    name: string;
-    avatar?: string;
-  };
-}
-
-const Header: React.FC<HeaderProps> = ({ 
-  user = { 
-    name: 'John Doe',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-  } 
-}) => {
+const Header: React.FC = () => {
   const { toggleSidebar } = useSidebar();
+  const { user } = useAuth();
+
+  const displayName = user ? `${user.firstName} ${user.lastName}` : 'Loading...';
+  const avatar = user?.avatar || '';
 
   return (
     <div className="bg-white shadow-sm z-20">
@@ -52,12 +45,12 @@ const Header: React.FC<HeaderProps> = ({
             </button>
             <div className="flex items-center">
               <CustomAvatar 
-                src={user.avatar} 
-                alt={user.name} 
+                src={avatar}
+                alt={displayName}
                 size="sm"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 hidden md:inline-block">
-                {user.name}
+                {displayName}
               </span>
             </div>
           </div>

@@ -7,7 +7,7 @@ type User = {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'Manager' | 'Employee' | 'Client' | 'Supplier';
+  role: 'manager' | 'employee' | 'client' | 'supplier';
   emailVerified: boolean;
 };
 
@@ -27,7 +27,7 @@ type RegisterData = {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'Manager' | 'Employee' | 'Client' | 'Supplier';
+  role: 'manager' | 'employee' | 'client' | 'supplier';
 };
 
 // Create the context with a default value

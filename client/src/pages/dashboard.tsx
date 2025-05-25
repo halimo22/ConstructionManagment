@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import StatsOverview from '@/components/dashboard/StatsOverview';
 import ProjectProgress from '@/components/dashboard/ProjectProgress';
 import UpcomingTasks from '@/components/dashboard/UpcomingTasks';
@@ -12,18 +11,37 @@ const Dashboard: React.FC = () => {
   // Fetch projects
   const { data: projects, isLoading: projectsLoading } = useQuery({
     queryKey: ['/api/projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch projects');
+      return res.json();
+    },
   });
+  
 
   // Fetch tasks
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ['/api/tasks'],
+    queryFn: async () => {
+      const res = await fetch('/api/tasks', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch tasks');
+      return res.json();
+    },
   });
+  
 
   // Fetch resources
   const { data: resources, isLoading: resourcesLoading } = useQuery({
     queryKey: ['/api/resources'],
+    queryFn: async () => {
+      const res = await fetch('/api/resources', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch resources');
+      return res.json();
+    },
   });
+  
 
+  
   // Fetch activities
   const { data: activities, isLoading: activitiesLoading } = useQuery({
     queryKey: ['/api/activities'],
@@ -41,7 +59,27 @@ const Dashboard: React.FC = () => {
   // Fetch users
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['/api/users'],
+    queryFn: async () => {
+      const res = await fetch('/api/users', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch users');
+      return res.json();
+    },
   });
+  console.log({
+    projects,
+    tasks,
+    users,
+    resources,
+    activities
+  });
+  console.log({
+    projectsLoading,
+    tasksLoading,
+    usersLoading,
+    resourcesLoading,
+    activitiesLoading
+  });  
+
 
   // Calculate stats
   const stats = {
@@ -134,8 +172,7 @@ const Dashboard: React.FC = () => {
   const isLoading = projectsLoading || tasksLoading || resourcesLoading || activitiesLoading || usersLoading;
 
   if (isLoading) {
-    return (
-      <AppLayout title="Dashboard" subtitle="Loading...">
+    return ( <>
         <div className="animate-pulse">
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
@@ -149,13 +186,18 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="mt-8 bg-white h-96 rounded-lg shadow"></div>
           <div className="mt-8 bg-white h-96 rounded-lg shadow"></div>
-        </div>
-      </AppLayout>
+        </div></>
     );
   }
-
+  if (!isLoading && (!projects || !tasks || !users)) {
   return (
-    <AppLayout title="Dashboard" subtitle="Overview of your projects and key metrics">
+    <>
+      <div className="text-red-500">Failed to load required dashboard data. Please try again.</div>
+      </>
+  );
+}
+
+  return ( <>
       {/* Quick Stats */}
       <StatsOverview stats={stats} />
       
@@ -181,7 +223,7 @@ const Dashboard: React.FC = () => {
       
       {/* Recent Activity */}
       <RecentActivity activities={activitiesData} />
-    </AppLayout>
+  </>
   );
 };
 

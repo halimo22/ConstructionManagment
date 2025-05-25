@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -144,7 +143,7 @@ const Communications: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Communications" subtitle="Client communications and messages">
+      <>
         <div className="animate-pulse">
           <div className="mb-6">
             <div className="h-10 w-64 bg-gray-200 rounded mb-4"></div>
@@ -159,12 +158,12 @@ const Communications: React.FC = () => {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Communications" subtitle="Client communications and messages">
+    <>
       <div className="mb-6">
         <div className="relative w-full mb-4">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -456,7 +455,7 @@ const Communications: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

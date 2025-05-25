@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -178,7 +177,7 @@ const Documents: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Documents" subtitle="Manage project documents and files">
+      <>
         <div className="animate-pulse">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div className="h-10 w-32 bg-gray-200 rounded"></div>
@@ -194,12 +193,12 @@ const Documents: React.FC = () => {
             ))}
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Documents" subtitle="Manage project documents and files">
+    <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -335,7 +334,7 @@ const Documents: React.FC = () => {
           ))}
         </div>
       )}
-    </AppLayout>
+    </>
   );
 };
 

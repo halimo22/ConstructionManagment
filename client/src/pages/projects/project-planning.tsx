@@ -1,12 +1,11 @@
 import React from 'react';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle } from 'lucide-react';
 
 const ProjectPlanning: React.FC = () => {
   return (
-    <AppLayout title="Project Planning" subtitle="Plan and organize your construction projects">
+    <>
       <div className="flex justify-between items-center mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -127,7 +126,7 @@ const ProjectPlanning: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

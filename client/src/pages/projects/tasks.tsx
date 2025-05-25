@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -87,7 +86,7 @@ const Tasks: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Tasks" subtitle="View and manage project tasks">
+      <>
         <div className="animate-pulse">
           <div className="flex justify-between items-center mb-6">
             <div className="h-10 w-32 bg-gray-200 rounded"></div>
@@ -101,12 +100,12 @@ const Tasks: React.FC = () => {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Tasks" subtitle="View and manage project tasks">
+    <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -234,7 +233,7 @@ const Tasks: React.FC = () => {
           </Table>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

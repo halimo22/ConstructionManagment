@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTheme } from '@/components/theme/ThemeProvider';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -241,7 +240,7 @@ const Settings: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Settings" subtitle="Manage your account settings and preferences">
+      <>
         <div className="animate-pulse">
           <div className="h-10 w-64 bg-gray-200 rounded mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -255,12 +254,12 @@ const Settings: React.FC = () => {
             </div>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Settings" subtitle="Manage your account settings and preferences">
+    < >
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto">
           <TabsTrigger value="profile" className="flex items-center gap-2">
@@ -803,7 +802,7 @@ const Settings: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </AppLayout>
+    </>
   );
 };
 

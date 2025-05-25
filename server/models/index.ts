@@ -11,7 +11,7 @@ const userSchema = new Schema({
   role: { 
     type: String, 
     required: true,
-    enum: ['Manager', 'Employee', 'Client', 'Supplier']
+    enum: ['manager', 'employee', 'client', 'supplier']
   },
   avatar: { type: String, default: null },
   emailVerified: { type: Boolean, default: false },

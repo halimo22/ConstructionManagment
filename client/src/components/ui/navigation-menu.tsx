@@ -2,7 +2,7 @@ import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
 import { ChevronDown } from "lucide-react"
-
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils"
 
 const NavigationMenu = React.forwardRef<
@@ -77,7 +77,24 @@ const NavigationMenuContent = React.forwardRef<
 ))
 NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName
 
-const NavigationMenuLink = NavigationMenuPrimitive.Link
+const NavigationMenuLink = ({ to, label }: { to: string, label: string }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <NavigationMenuPrimitive.Link asChild>
+      <Link
+        to={to}
+        className={cn(
+          "inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none",
+          isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+        )}
+      >
+        {label}
+      </Link>
+    </NavigationMenuPrimitive.Link>
+  );
+};
 
 const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,

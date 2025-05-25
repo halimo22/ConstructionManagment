@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, CreditCard, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -25,7 +24,7 @@ const Budget: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Budget" subtitle="Financial management and budget tracking">
+      <>
         <div className="animate-pulse">
           <div className="mb-6 flex justify-end">
             <div className="h-10 w-40 bg-gray-200 rounded"></div>
@@ -41,7 +40,7 @@ const Budget: React.FC = () => {
           </div>
           <div className="bg-white h-96 rounded-lg shadow"></div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
@@ -66,7 +65,7 @@ const Budget: React.FC = () => {
   });
 
   return (
-    <AppLayout title="Budget" subtitle="Financial management and budget tracking">
+    <>
       <div className="mb-6 flex justify-end">
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
@@ -262,7 +261,7 @@ const Budget: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </AppLayout>
+    </>
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,7 +61,7 @@ const HelpSupport: React.FC = () => {
   };
 
   return (
-    <AppLayout title="Help & Support" subtitle="Get help and learn how to use WE-BUILD">
+    <>
       <div className="mb-6">
         <div className="relative w-full max-w-md mx-auto mb-8">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -559,7 +558,7 @@ const HelpSupport: React.FC = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

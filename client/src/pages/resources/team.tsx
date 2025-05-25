@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PlusCircle, Mail, Phone, Building } from 'lucide-react';
@@ -41,7 +40,7 @@ const Team: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AppLayout title="Team" subtitle="Manage your team members and resources">
+      <>
         <div className="animate-pulse">
           <div className="mb-6 flex justify-between items-center">
             <div className="h-6 w-40 bg-gray-200 rounded"></div>
@@ -53,12 +52,12 @@ const Team: React.FC = () => {
             ))}
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout title="Team" subtitle="Manage your team members and resources">
+    <>
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-lg font-medium text-gray-900">Team Members ({teamMembers.length})</h2>
         <Button>
@@ -98,9 +97,8 @@ const Team: React.FC = () => {
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                               <span className="sr-only">Open menu</span>
-                              <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"></svg>
                                 <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                              </svg>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -141,7 +139,7 @@ const Team: React.FC = () => {
           </div>
         );
       })}
-    </AppLayout>
+    </>
   );
 };
 
