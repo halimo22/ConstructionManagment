@@ -45,7 +45,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = insertUserSchema.safeParse(req.body);
       
       if (!result.success) {
-        return res.status(400).json({ message: "Invalid user data", errors: result.error.errors });
+        console.error("Validation errors:", result.error.format()); // 🔍 full structured error log
+        return res.status(400).json({
+          message: "Invalid user data",
+          errors: result.error.flatten()  // flatten() gives cleaner key-based error map
+        });
       }
       
       const { username, email, role } = result.data;
@@ -62,47 +66,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(409).json({ message: "Username already exists" });
       }
       
-      // Create verification token
+      // Create verification token      
       const verificationToken = generateToken();
-      
-      // Create user with verification token and emailVerified=false
+      const verificationUrl = `http://localhost:5000/verify-email?token=${verificationToken}`;
+
+      try {
+        await sendEmail(
+          email,
+          'Verify your WE-BUILD Account',
+          `
+            <h1>Welcome to WE-BUILD</h1>
+            <p>Click below to verify your email:</p>
+            <a href="${verificationUrl}">${verificationUrl}</a>
+            <p>This link expires in 24 hours.</p>
+          `
+        );
+      } catch (emailError) {
+        console.error("Failed to send verification email:", emailError);
+        return res.status(500).json({ message: "Failed to send verification email. User was not created." });
+      }
+
+      // If email is successfully sent, then create user and verification record
       const user = await storage.createUser({
         ...result.data,
         role: role.toLowerCase(),
         emailVerified: false,
         verificationToken
       });
-      
-      // Create email verification record
+
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 24); // Token valid for 24 hours
-      
+      expiresAt.setHours(expiresAt.getHours() + 24);
+
       await storage.createEmailVerification({
         userId: user.id,
         token: verificationToken,
         expiresAt
       });
-      
-      // In a real app, you would send an email with the verification link
-      // For development purposes, we'll return the token in the response
-      
-      // Don't send password in response
+
       const { password, ...userWithoutPassword } = user;
-      const verificationUrl = `http://localhost:5000/verify-email?token=${verificationToken}`;
-      await sendEmail(
-        email,
-        'Verify your WE-BUILD Account',
-        `
-          <h1>Welcome to WE-BUILD</h1>
-          <p>Click below to verify your email:</p>
-          <a href="${verificationUrl}">${verificationUrl}</a>
-          <p>This link expires in 24 hours.</p>
-        `
-      );
+
       return res.status(201).json({
         message: "User registered successfully. Please verify your email.",
         user: userWithoutPassword
       });
+
     } catch (error) {
       console.error("Registration error:", error);
       return res.status(500).json({ message: "Internal server error" });
@@ -230,7 +237,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.post("/auth/logout", (req: Request, res: Response) => {
-    return res.status(200).json({ message: "Logout successful" });
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return res.status(500).json({ message: "Failed to logout" });
+      }
+  
+      res.clearCookie('connect.sid'); 
+      return res.status(200).json({ message: "Logout successful" });
+    });
   });
   
   // USER ROUTES

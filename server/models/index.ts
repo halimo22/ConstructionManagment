@@ -11,7 +11,7 @@ const userSchema = new Schema({
   role: { 
     type: String, 
     required: true,
-    enum: ['manager', 'employee', 'client', 'supplier']
+    enum: ['manager', 'employee', 'supplier'] // ❌ removed 'client'
   },
   avatar: { type: String, default: null },
   emailVerified: { type: Boolean, default: false },
@@ -20,7 +20,7 @@ const userSchema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Project Model
+// ✅ Updated: clientId now references Client (not User)
 const projectSchema = new Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
@@ -30,7 +30,7 @@ const projectSchema = new Schema({
     enum: ['Planning', 'In Progress', 'On Hold', 'Completed', 'Cancelled']
   },
   progress: { type: Number, default: 0 },
-  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  clientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Client', required: true }, // ✅ reference Client
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   budget: { type: Number, required: true },
@@ -38,6 +38,7 @@ const projectSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
+
 
 // Task Model
 const taskSchema = new Schema({

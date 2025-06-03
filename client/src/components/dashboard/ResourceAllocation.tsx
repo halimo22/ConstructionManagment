@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // ✅ Use React Router instead of Wouter
 import ProgressBar from '@/components/ui/progress-bar';
 import CustomAvatar from '@/components/ui/custom-avatar';
 
@@ -35,7 +35,7 @@ const ResourceAllocation: React.FC<ResourceAllocationProps> = ({ resources = [] 
                 <span className="text-xs text-gray-500">{resource.teamMemberCount} team members</span>
               </div>
               <div className="flex -space-x-2 overflow-hidden">
-                {resource.teamMembers.slice(0, 4).map((member, index) => (
+                {resource.teamMembers.slice(0, 4).map((member) => (
                   <img
                     key={member.id}
                     className="inline-block h-8 w-8 rounded-full ring-2 ring-white"
@@ -45,7 +45,9 @@ const ResourceAllocation: React.FC<ResourceAllocationProps> = ({ resources = [] 
                 ))}
                 {resource.teamMemberCount > 4 && (
                   <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 ring-2 ring-white">
-                    <span className="text-xs font-medium text-gray-700">+{resource.teamMemberCount - 4}</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      +{resource.teamMemberCount - 4}
+                    </span>
                   </div>
                 )}
               </div>
@@ -66,8 +68,8 @@ const ResourceAllocation: React.FC<ResourceAllocationProps> = ({ resources = [] 
       </div>
       <div className="bg-gray-50 px-6 py-3">
         <div className="text-sm">
-          <Link href="/resources/team">
-            <a className="font-medium text-primary-600 hover:text-primary-500">Manage resources</a>
+          <Link to="/resources/team" className="font-medium text-primary-600 hover:text-primary-500">
+            Manage resources
           </Link>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // ✅ Use React Router
 import { formatDate, getStatusColor } from '@/lib/utils';
 import ProgressBar from '@/components/ui/progress-bar';
 
@@ -43,20 +43,15 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
               <tbody className="bg-white divide-y divide-gray-200">
                 {projects.map((project) => {
                   const statusColors = getStatusColor(project.status);
-                  
+
                   let progressColor: 'green' | 'amber' | 'red' = 'green';
-                  if (project.status === 'At Risk') {
-                    progressColor = 'amber';
-                  } else if (project.status === 'Delayed') {
-                    progressColor = 'red';
-                  }
+                  if (project.status === 'At Risk') progressColor = 'amber';
+                  else if (project.status === 'Delayed') progressColor = 'red';
 
                   return (
                     <tr key={project.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{project.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{project.client}</div>
@@ -77,8 +72,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/projects/${project.id}`}>
-                          <a className="text-primary-600 hover:text-primary-900">View</a>
+                        <Link to={`/projects/${project.id}`} className="text-primary-600 hover:text-primary-900">
+                          View
                         </Link>
                       </td>
                     </tr>
@@ -91,8 +86,8 @@ const ProjectProgress: React.FC<ProjectProgressProps> = ({
         <div className="bg-gray-50 px-6 py-3 flex justify-between items-center">
           <div className="text-sm text-gray-500">Showing {showingCount} of {totalCount} projects</div>
           <div>
-            <Link href="/projects/active-projects">
-              <a className="font-medium text-primary-600 hover:text-primary-500">View all projects</a>
+            <Link to="/projects/active-projects" className="font-medium text-primary-600 hover:text-primary-500">
+              View all projects
             </Link>
           </div>
         </div>

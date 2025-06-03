@@ -8,7 +8,7 @@ const userSchema = z.object({
   email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
-  role: z.enum(['Manager', 'Employee', 'Client', 'Supplier']),
+  role: z.enum(['manager', 'employee', 'client', 'supplier']),
   avatar: z.string().nullable().optional(),
   emailVerified: z.boolean().default(false),
   verificationToken: z.string().nullable().optional(),

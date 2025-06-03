@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // updated here
 import { Briefcase, Clock, Users, DollarSign } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
@@ -38,8 +38,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
     </div>
     <div className="bg-gray-50 px-5 py-3">
       <div className="text-sm">
-        <Link href={linkUrl}>
-          <div className="font-medium text-primary-600 hover:text-primary-500 cursor-pointer">{linkText}</div>
+        <Link to={linkUrl} className="font-medium text-primary-600 hover:text-primary-500">
+          {linkText}
         </Link>
       </div>
     </div>
@@ -73,7 +73,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
         linkText="View all"
         linkUrl="/projects/active-projects"
       />
-      
       <StatsCard
         title="Tasks Due Today"
         value={stats.tasksDueToday}
@@ -82,7 +81,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
         linkText="View all"
         linkUrl="/projects/tasks"
       />
-      
       <StatsCard
         title="Team Members"
         value={stats.teamMembers}
@@ -91,7 +89,6 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({
         linkText="View all"
         linkUrl="/resources/team"
       />
-      
       <StatsCard
         title="Total Budget Utilized"
         value={formatCurrency(stats.budgetUtilized)}

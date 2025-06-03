@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { formatDate, getStatusColor } from '@/lib/utils';
 import ProgressBar from '@/components/ui/progress-bar';
 import { Button } from '@/components/ui/button';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom';
 import { PlusCircle } from 'lucide-react';
 
 const ActiveProjects: React.FC = () => {
@@ -19,22 +19,18 @@ const ActiveProjects: React.FC = () => {
 
   if (isLoading || clientsLoading) {
     return (
-      <>
-        <div className="animate-pulse">
-          <div className="flex justify-between items-center mb-6">
-            <div className="h-10 w-32 bg-gray-200 rounded"></div>
-          </div>
-          <div className="bg-white shadow rounded-lg">
-            <div className="p-6">
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded"></div>
-                ))}
-              </div>
-            </div>
+      <div className="animate-pulse">
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-10 w-32 bg-gray-200 rounded"></div>
+        </div>
+        <div className="bg-white shadow rounded-lg">
+          <div className="p-6 space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 bg-gray-100 rounded"></div>
+            ))}
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -66,13 +62,10 @@ const ActiveProjects: React.FC = () => {
                 {projects.map((project: any) => {
                   const client = clients.find((c: any) => c.id === project.clientId);
                   const statusColors = getStatusColor(project.status);
-                  
+
                   let progressColor: 'green' | 'amber' | 'red' = 'green';
-                  if (project.status === 'At Risk') {
-                    progressColor = 'amber';
-                  } else if (project.status === 'Delayed') {
-                    progressColor = 'red';
-                  }
+                  if (project.status === 'At Risk') progressColor = 'amber';
+                  else if (project.status === 'Delayed') progressColor = 'red';
 
                   return (
                     <tr key={project.id}>
@@ -90,25 +83,27 @@ const ActiveProjects: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{formatDate(project.startDate)} - {formatDate(project.endDate)}</div>
+                        <div className="text-sm text-gray-900">
+                          {formatDate(project.startDate)} – {formatDate(project.endDate)}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <ProgressBar 
-                          value={project.progress} 
-                          size="md" 
-                          color={progressColor}
-                        />
+                        <ProgressBar value={project.progress} size="md" color={progressColor} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">${project.spent.toLocaleString()} / ${project.budget.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">{Math.round((project.spent / project.budget) * 100)}% used</div>
+                        <div className="text-sm text-gray-900">
+                          ${project.spent.toLocaleString()} / ${project.budget.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {Math.round((project.spent / project.budget) * 100)}% used
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/projects/${project.id}`}>
-                          <a className="text-primary-600 hover:text-primary-900 mr-3">View</a>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                        <Link to={`/projects/${project.id}`} className="text-primary-600 hover:text-primary-900">
+                          View
                         </Link>
-                        <Link href={`/projects/${project.id}/edit`}>
-                          <a className="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        <Link to={`/projects/${project.id}/edit`} className="text-indigo-600 hover:text-indigo-900">
+                          Edit
                         </Link>
                       </td>
                     </tr>

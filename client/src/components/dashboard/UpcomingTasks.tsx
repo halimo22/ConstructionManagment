@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // updated here
 import { getPriorityColor } from '@/lib/utils';
 
 interface Task {
@@ -34,7 +34,13 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks = [] }) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{task.name}</p>
-                    <p className="text-sm text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    <p className="text-sm text-gray-500">
+                      Due: {new Date(task.dueDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
                   </div>
                   <div>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityColors.bg} ${priorityColors.text}`}>
@@ -49,8 +55,8 @@ const UpcomingTasks: React.FC<UpcomingTasksProps> = ({ tasks = [] }) => {
       </div>
       <div className="bg-gray-50 px-6 py-3">
         <div className="text-sm">
-          <Link href="/projects/tasks">
-            <a className="font-medium text-primary-600 hover:text-primary-500">View all tasks</a>
+          <Link to="/projects/tasks" className="font-medium text-primary-600 hover:text-primary-500">
+            View all tasks
           </Link>
         </div>
       </div>

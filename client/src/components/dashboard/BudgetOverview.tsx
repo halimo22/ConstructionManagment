@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // ✅ switched from 'wouter' to 'react-router-dom'
 import { formatCurrency, calculatePercentage } from '@/lib/utils';
 import ProgressBar from '@/components/ui/progress-bar';
 
@@ -48,14 +48,14 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
               <div className="mt-2 text-xs text-gray-500">{remainingPercentage}% of total budget</div>
             </div>
           </div>
-          
+
           <div className="mt-8">
             <h3 className="text-sm font-medium text-gray-700 mb-4">Budget Distribution by Project</h3>
             <div className="space-y-4">
               {projectBudgets.map((project) => {
                 const percentage = calculatePercentage(project.budget, totalBudget);
                 const spentPercentage = calculatePercentage(project.spent, project.budget);
-                
+
                 return (
                   <div key={project.id}>
                     <div className="flex justify-between mb-1">
@@ -79,8 +79,8 @@ const BudgetOverview: React.FC<BudgetOverviewProps> = ({
         </div>
         <div className="bg-gray-50 px-6 py-3">
           <div className="text-sm">
-            <Link href="/resources/budget">
-              <a className="font-medium text-primary-600 hover:text-primary-500">View detailed budget report</a>
+            <Link to="/resources/budget" className="font-medium text-primary-600 hover:text-primary-500">
+              View detailed budget report
             </Link>
           </div>
         </div>

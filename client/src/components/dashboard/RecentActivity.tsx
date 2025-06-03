@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom'; // ✅ React Router
 import CustomAvatar from '@/components/ui/custom-avatar';
 import { formatDateTime } from '@/lib/utils';
 
@@ -32,8 +32,8 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ activities = [] }) => {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-gray-900">System Updates</h3>
             <div className="flex space-x-4">
-              <Link href="/activities">
-                <a className="text-sm font-medium text-primary-600 hover:text-primary-500">View all</a>
+              <Link to="/activities" className="text-sm font-medium text-primary-600 hover:text-primary-500">
+                View all
               </Link>
             </div>
           </div>
@@ -52,19 +52,19 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ activities = [] }) => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-gray-900">
-                      <Link href={`/users/${activity.user.id}`}>
-                        <a className="hover:underline">{activity.user.name}</a>
+                      <Link to={`/users/${activity.user.id}`} className="hover:underline">
+                        {activity.user.name}
                       </Link>
                     </p>
                     <p className="text-sm text-gray-500">
-                      {activity.action} {activity.projectLink && (
-                        <>
-                          <Link href={`/projects/${activity.projectLink.id}`}>
-                            <a className="font-medium text-gray-900 hover:underline">{activity.projectLink.name}</a>
-                          </Link>
-                        </>
+                      {activity.action}{' '}
+                      {activity.projectLink ? (
+                        <Link to={`/projects/${activity.projectLink.id}`} className="font-medium text-gray-900 hover:underline">
+                          {activity.projectLink.name}
+                        </Link>
+                      ) : (
+                        activity.details
                       )}
-                      {!activity.projectLink && activity.details}
                     </p>
                     <div className="mt-2 text-xs text-gray-500">
                       <span>{formatDateTime(activity.timestamp)}</span>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 // Icons
@@ -27,26 +27,26 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const [location] = useLocation();
+  const location = useLocation();
 
   const isActive = (path: string) => {
-    return location === path;
+    return location.pathname === path;
   };
 
-  const NavItem = ({ 
-    to, 
-    icon: Icon, 
-    children 
-  }: { 
-    to: string; 
-    icon: React.ElementType; 
+  const NavItem = ({
+    to,
+    icon: Icon,
+    children
+  }: {
+    to: string;
+    icon: React.ElementType;
     children: React.ReactNode;
   }) => (
-    <Link href={to}>
+    <Link to={to}>
       <div
         className={cn(
-          "flex items-center space-x-3 px-3 py-2 rounded-md text-gray-300 hover:bg-slate-700 hover:text-white cursor-pointer",
-          isActive(to) && "bg-primary-600 text-white"
+          'flex items-center space-x-3 px-3 py-2 rounded-md text-gray-300 hover:bg-slate-700 hover:text-white cursor-pointer',
+          isActive(to) && 'bg-primary-600 text-white'
         )}
       >
         <Icon className="h-5 w-5" />
@@ -58,9 +58,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <div
       className={cn(
-        "bg-slate-800 text-white w-64 fixed h-full overflow-y-auto transition-transform duration-300 ease-in-out z-30",
-        isOpen ? "translate-x-0" : "-translate-x-full",
-        "md:translate-x-0" // Always show on md screens and up
+        'bg-slate-800 text-white w-64 fixed h-full overflow-y-auto transition-transform duration-300 ease-in-out z-30',
+        isOpen ? 'translate-x-0' : '-translate-x-full',
+        'md:translate-x-0'
       )}
     >
       <div className="flex items-center justify-between p-4 border-b border-slate-700">
@@ -74,12 +74,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </svg>
         </button>
       </div>
-      
+
       <nav className="p-4">
         <div className="space-y-1">
           <NavItem to="/" icon={Home}>Dashboard</NavItem>
         </div>
-        
+
         <div className="mt-8">
           <h3 className="px-3 text-xs font-semibold text-gray-300 uppercase tracking-wider">Projects</h3>
           <div className="mt-2 space-y-1">
@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <NavItem to="/projects/timeline" icon={Calendar}>Timeline</NavItem>
           </div>
         </div>
-        
+
         <div className="mt-8">
           <h3 className="px-3 text-xs font-semibold text-gray-300 uppercase tracking-wider">Resources</h3>
           <div className="mt-2 space-y-1">
@@ -99,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <NavItem to="/resources/documents" icon={FileIcon}>Documents</NavItem>
           </div>
         </div>
-        
+
         <div className="mt-8">
           <h3 className="px-3 text-xs font-semibold text-gray-300 uppercase tracking-wider">Clients</h3>
           <div className="mt-2 space-y-1">
@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <NavItem to="/clients/communications" icon={MessageSquare}>Communications</NavItem>
           </div>
         </div>
-        
+
         <div className="mt-8">
           <h3 className="px-3 text-xs font-semibold text-gray-300 uppercase tracking-wider">Settings</h3>
           <div className="mt-2 space-y-1">
@@ -116,9 +116,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </nav>
-      
+
       <div className="p-4 mt-8 border-t border-slate-700">
-        <Link href="/auth/login">
+        <Link to="/login">
           <div className="flex items-center space-x-3 text-gray-300 hover:text-white cursor-pointer">
             <LogOut className="h-5 w-5" />
             <span>Logout</span>
